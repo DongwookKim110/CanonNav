@@ -10,11 +10,15 @@ requires-python = ">=3.9"
 license = { text = "MIT" }
 dependencies = [
     "torch",
+    "torchvision",
     "numpy",
     "omegaconf>=2.3",
     "opencv-python",
-    "diffusers",
+    "diffusers>=0.36,<0.41",   # 0.41 needs torch>=2.6 (torch.accelerator)
     "einops",
+    # imported by DINOv3's torch.hub entry point
+    "torchmetrics",
+    "termcolor",
     # preprocessing
     "pandas",
     "scipy",
