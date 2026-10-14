@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<!--
+Clearpath Jackal + forward RGB camera for CanonNav.
+
+  camera      : 672x376, horizontal FOV 90 deg, level (pitch 0), 10 Hz
+                topic /camera/rgb/image_raw, frame camera_rgb_optical_frame
+  odometry    : ground truth (P3D) on /ground_truth/odom, Gazebo world frame
+  camera pose : base_link + (0.0862, 0.018, 0.663) m. base_link is 0.0635 m above the ground
+                (wheel radius 0.098 - wheel offset 0.0345), so the camera is 0.7265 m above the ground.
+                Keep canonnav_ros/config/hospital_jackal_camera.yaml and hospital_jackal.yaml in sync when changing it.
+
+Requires JACKAL_FLEA3 to be unset (this camera replaces the optional built-in one).
+-->
+<robot name="jackal" xmlns:xacro="http://ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find jackal_description)/urdf/jackal.urdf.xacro"/>
+
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><box size="0.025 0.09 0.025"/></geometry>
+      <material name="dark_grey"><color rgba="0.2 0.2 0.2 1"/></material>
+    </visual>
+  </link>
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="camera_link"/>
+    <origin xyz="0.0812 0 0.65" rpy="0 0 0"/>
+  </joint>
+
+  <link name="camera_rgb_frame"/>
+  <joint name="camera_rgb_joint" type="fixed">
+    <parent link="camera_link"/>
+    <child  link="camera_rgb_frame"/>
+    <origin xyz="0.005 0.018 0.013" rpy="0 0 0"/>
+  </joint>
+
+  <!-- x right, y down, z forward -->
+  <link name="camera_rgb_optical_frame"/>
+  <joint name="camera_rgb_optical_joint" type="fixed">
+    <parent link="camera_rgb_frame"/>
+    <child  link="camera_rgb_optical_frame"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  </joint>
+
+  <!-- Ground-truth odometry in Gazebo world coordinates (= waypoint coordinates).
+       frameName must be "world" or an existing Gazebo link, otherwise the plugin publishes nothing. -->
+  <gazebo>
+    <plugin name="ground_truth_odom" filename="libgazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>50.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>/ground_truth/odom</topicName>
+      <frameName>world</frameName>
+      <gaussianNoise>0.0</gaussianNoise>
+      <xyzOffset>0 0 0</xyzOffset>
+      <rpyOffset>0 0 0</rpyOffset>
+    </plugin>
+  </gazebo>
+
+  <!-- RGB camera. Same sensor as in the paper experiments (depth-camera plugin; only the RGB stream is used). -->
+  <gazebo reference="camera_rgb_frame">
+    <sensor type="depth" name="canonnav_camera">
+      <always_on>true</always_on>
+      <visualize>false</visualize>
+      <!-- authoritative publish rate (the plugin updateRate is not reliably honored) -->
+      <update_rate>10.0</update_rate>
+      <camera>
+        <horizontal_fov>1.570796</horizontal_fov>
+        <image>
+          <width>672</width>
+          <height>376</height>
+          <format>R8G8B8</format>
+        </image>
+        <depth_camera/>
+        <clip><near>0.03</near><far>40</far></clip>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_depth_camera.so">
+        <baseline>0.2</baseline>
+        <alwaysOn>true</alwaysOn>
+        <updateRate>30.0</updateRate>
+        <cameraName>camera</cameraName>
+        <frameName>camera_rgb_optical_frame</frameName>
+        <imageTopicName>rgb/image_raw</imageTopicName>
+        <depthImageTopicName>depth/image_raw</depthImageTopicName>
+        <pointCloudTopicName>depth/points</pointCloudTopicName>
+        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <depthImageCameraInfoTopicName>depth/camera_info</depthImageCameraInfoTopicName>
+        <pointCloudCutoff>0.5</pointCloudCutoff>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+</robot>

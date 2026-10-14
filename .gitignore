@@ -1,0 +1,10 @@
+__pycache__/
+*.egg-info/
+*.pt
+*.pth
+outputs/
+ros/build/
+ros/devel/
+ros/install/
+ros/src/CMakeLists.txt
+runs/

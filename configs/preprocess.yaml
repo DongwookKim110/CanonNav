@@ -1,0 +1,22 @@
+# Label generation. schema: canonnav/config.py::PreprocessCfg
+# Per-environment camera and sampling settings live in <root>/<env>/calib.yaml.
+
+dataset:
+  rgb_folder: rgb
+  trav_map_folder: trav_map
+  odometry_file: odometry.csv
+  calib_file: calib.yaml
+
+bev:
+  cell_size: 0.1
+  horizontal_range: [-32.0, 32.0]
+  forward_range: [0.0, 32.0]
+
+traj:
+  interp_step_m: 0.33
+  min_traj_len: 2
+  safety_ratio_threshold: 0.7
+
+output:
+  label_folder: labels
+  vis_folder: labels_vis

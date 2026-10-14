@@ -1,0 +1,58 @@
+# CanonNav training (values of the release run). schema: canonnav/config.py::TrainConfig
+# The network (and the DINOv3 paths) come from configs/canonnav.yaml.
+# Data: label folders made by scripts/preprocess.py. Each entry is an environment folder (all sequences below
+# it are used) with its sampling weight; an epoch draws sum(labels * weight) samples.
+
+base: canonnav.yaml
+
+data:                                   # the sample dataset; replace with your own environment folders
+  train:
+    - { path: /path/to/sample_dataset/campus, weight: 1.0 }
+    - { path: /path/to/sample_dataset/offroad, weight: 1.0 }
+    - { path: /path/to/sample_dataset/parking, weight: 1.0 }
+  val:                                  # sequences (or folders) for validation; they stay in training
+    - /path/to/sample_dataset/campus/seq2
+    - /path/to/sample_dataset/offroad/seq2
+
+train:
+  gpu_ids: [0, 1, 2, 3]                 # torchrun maps local_rank -> gpu_ids[local_rank]; one process uses gpu_ids[0]
+  seed: 0
+  epoch: 70
+  batch_size: 64                        # per GPU
+  path_per_image: 1
+  exploration_prob: 0.3
+  rotation_aug: 15                      # [deg]
+  color_jitter: { brightness: 0.2, contrast: 0.2, saturation: 0.2, hue: 0.1, p: 0.8 }
+  lr:
+    lora: 0.00005
+    side_branch: 0.0001
+    goal_conditioned_attn_layer: 0.0001
+    diffuser_noise_pred_net: 0.0001
+    sor_head: 0.0001
+    path_traversability_net: 0.0001
+  loss_weight:
+    sor_nll: 2.0
+    sor_neg: 8.0
+    sor_path_consistency: 0.25
+    diffusion: 25.0
+    traversability: 5.0
+    collision: 0.3
+    curvature: 0.05
+  val_every: 10
+  val_vis_frames: 20
+  num_workers: 4
+  pin_memory: true
+  prefetch_factor: 2
+  output_dir: runs/canonnav
+  resume: null
+
+bev:                                    # must match configs/preprocess.yaml
+  cell_length: 0.1
+  horizontal_range: [-32.0, 32.0]
+  forward_range: [0.0, 32.0]
+
+supervision:
+  robot_size: 0.25
+  safety_margin: 0.5
+  path_consistency_tau: 0.5
+

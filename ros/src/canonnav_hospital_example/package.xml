@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>canonnav_hospital_example</name>
+  <version>0.1.0</version>
+  <description>CanonNav example: Clearpath Jackal in the AWS RoboMaker hospital world (Gazebo).</description>
+  <maintainer email="sgr01086@snu.ac.kr">Dong-Wook Kim</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>canonnav_ros</exec_depend>
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_msgs</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>jackal_description</exec_depend>
+  <exec_depend>jackal_control</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>compressed_image_transport</exec_depend>
+</package>

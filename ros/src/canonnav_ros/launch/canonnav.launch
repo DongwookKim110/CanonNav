@@ -1,0 +1,40 @@
+<!--
+CanonNav inference (canonnav_node) + path tracker (tracker_node).
+
+  roslaunch canonnav_ros canonnav.launch
+
+The defaults run the Jackal started by canonnav_hospital_example/hospital_world.launch.
+For another robot, pass its node config, camera config, waypoint file and topics.
+The DINOv3 paths are read from network_config (network.dino.repo_dir / pth).
+-->
+<launch>
+  <!-- CanonNav repository root (configs/, checkpoints/): this file is <root>/ros/src/canonnav_ros/launch/ -->
+  <arg name="canonnav_root" default="$(dirname)/../../../.."/>
+  <arg name="config" default="$(dirname)/../config/hospital_jackal.yaml"/>
+  <arg name="network_config" default="$(arg canonnav_root)/configs/canonnav.yaml"/>
+  <arg name="camera_config" default="$(dirname)/../config/hospital_jackal_camera.yaml"/>
+  <arg name="checkpoint" default="$(arg canonnav_root)/checkpoints/canonnav.pt"/>
+  <!-- empty: use /waypoint_file, which hospital_world.launch sets to the route it spawned the robot on -->
+  <arg name="waypoint_file" default=""/>
+
+  <arg name="image_topic" default="/camera/rgb/image_raw/compressed"/>
+  <arg name="odom_topic" default="/ground_truth/odom"/>
+  <arg name="cmd_vel_topic" default="/cmd_vel"/>
+  <arg name="tracker" default="true"/>
+
+  <node pkg="canonnav_ros" type="canonnav_node.py" name="canonnav" output="screen">
+    <param name="config" value="$(arg config)"/>
+    <param name="network_config" value="$(arg network_config)"/>
+    <param name="camera_config" value="$(arg camera_config)"/>
+    <param name="checkpoint" value="$(arg checkpoint)"/>
+    <param name="waypoint_file" value="$(arg waypoint_file)"/>
+    <remap from="image" to="$(arg image_topic)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+  </node>
+
+  <node if="$(arg tracker)" pkg="canonnav_ros" type="tracker_node.py" name="canonnav_tracker" output="screen">
+    <param name="config" value="$(arg config)"/>
+    <remap from="odom" to="$(arg odom_topic)"/>
+    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+  </node>
+</launch>

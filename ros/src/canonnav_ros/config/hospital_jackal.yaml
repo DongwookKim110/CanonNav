@@ -1,0 +1,47 @@
+# CanonNav node config for the AWS hospital + Jackal example.
+
+odom:
+  # camera ground point in base_link (x forward, y left): camera x/y, ground z
+  camodom_to_odom: [[1.0, 0.0, 0.0, 0.0862],
+                    [0.0, 1.0, 0.0, 0.018],
+                    [0.0, 0.0, 1.0, -0.0635],
+                    [0.0, 0.0, 0.0, 1.0]]
+  max_sync_dt: 0.5          # max |image stamp - odom stamp| [s]
+
+inference:
+  goal_directed: true       # false: exploration (no waypoint file needed)
+  sample_num: 30            # candidate paths per image
+  hz: 10.0
+
+goal:                       # waypoint file -> goal sequence
+  interval: 12.0            # spacing between goals along the waypoint polyline [m]
+  include_last: true        # always end at the last waypoint
+  last_merge_dist: 3.0      # ...merged into the previous goal if closer than this [m]
+  reach_radius: 1.0         # switch to the next goal within this distance [m]
+  cooldown: 2.0             # min time between switches [s]
+
+visualize:
+  max_candidates: 5         # non-best candidate paths drawn
+
+tracker:
+  control_hz: 15.0
+  viz_hz: 5.0
+  max_v: 0.6
+  max_w: 1.5
+  k_v: 1.5                  # v = k_v * r
+  lookahead_dist: 2.0       # target is taken up to this distance along the path [m]
+  stop_dist: 0.5            # stop if the expected reach distance is below this [m]
+  min_path_traversability: 0.0  # stop if the probability of traversing the whole path is below this
+  k_w: 1.5                  # w = k_w * theta
+  turn_slowdown: true
+  theta_slowdown_gain: 2.0  # v *= exp(-gain * |theta|)
+  # command post-processing
+  max_lin_accel: 1.5        # [m/s^2], <= 0 disables
+  max_ang_accel: 3.0        # [rad/s^2], <= 0 disables
+  cmd_ema_alpha: 1.0        # 1.0 = no smoothing
+  # staleness / odometry matching
+  max_path_age_sec: 1.0
+  max_odom_age_sec: 0.3
+  odom_buffer_sec: 3.0
+  max_odom_match_dt: 0.2
+  use_only_past_odom: true

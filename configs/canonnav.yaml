@@ -1,0 +1,26 @@
+# CanonNav network config, used by the demo, the ROS node and training (configs/train.yaml).
+# schema: canonnav/config.py::Config
+
+network:
+  W: 336
+  H: 256
+  K:
+    - [168.0, 0, 168.0]
+    - [0, 168.0, 128.0]
+    - [0, 0, 1]
+  dino:
+    repo_dir: /path/to/dinov3
+    model: dinov3_vits16plus
+    pth: /path/to/dinov3/model_pth/dinov3_vits16plus_pretrain_lvd1689m-4057cbaa.pth
+  decoder:
+    nhead: 8
+    cross_attn_layers: 2
+    mlp_ratio: 2
+    out_channel: 256
+    goal_r_max: 60.0
+  diffusion_policy:
+    pred_action_step: 16
+    diffusion_step: 10
+  lora_rank: 3
+  sor_head: { hidden_dim: 256 }
+  path_traversability_net: { hidden: 256, ch: 256 }

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "canonnav"
+version = "0.1.0"
+description = "CanonNav: visual navigation with SoR prediction and diffusion path policy"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "torch",
+    "numpy",
+    "omegaconf>=2.3",
+    "opencv-python",
+    "diffusers",
+    "einops",
+    # preprocessing
+    "pandas",
+    "scipy",
+    "pyyaml",
+    "tqdm",
+    # training
+    "albumentations",
+]
+
+[tool.setuptools.packages.find]
+include = ["canonnav*"]

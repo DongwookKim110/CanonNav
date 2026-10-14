@@ -1,0 +1,67 @@
+<!--
+AWS hospital world (Gazebo) + Jackal with the CanonNav camera.
+
+  roslaunch canonnav_hospital_example hospital_world.launch hospital_world_dir:=/path/to/aws-robomaker-hospital-world
+
+The robot starts at the first point of `waypoint_file`, facing along the route
+(override with spawn_x / spawn_y / spawn_yaw). Drive it with /cmd_vel (e.g. teleop_twist_keyboard)
+or run canonnav_ros/canonnav.launch.
+-->
+<launch>
+  <!-- clone of https://github.com/aws-robotics/aws-robomaker-hospital-world (branch ros1) after ./setup.sh -->
+  <arg name="hospital_world_dir" default="$(optenv HOSPITAL_WORLD_DIR)"/>
+  <arg name="waypoint_file" default="$(find canonnav_hospital_example)/waypoints/waypoints9.txt"/>
+  <arg name="spawn_x" default=""/>
+  <arg name="spawn_y" default=""/>
+  <arg name="spawn_yaw" default=""/>
+  <arg name="gui" default="false"/>
+  <!-- simulation speed: 1 = real time, 2 / 3 = 2x / 3x (if the machine keeps up), 0 = as fast as possible -->
+  <arg name="sim_speed" default="1"/>
+  <!-- move the robot onto a goal it cannot reach (timeout / stuck / tilted) so the run continues -->
+  <arg name="recovery" default="true"/>
+
+  <env name="GAZEBO_MODEL_PATH"
+       value="$(find canonnav_hospital_example)/models:$(arg hospital_world_dir)/models:$(arg hospital_world_dir)/fuel_models:$(optenv GAZEBO_MODEL_PATH)"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find canonnav_hospital_example)/worlds/hospital_canonnav.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <param name="robot_description"
+         command="$(find xacro)/xacro $(find canonnav_hospital_example)/urdf/jackal_canonnav.urdf.xacro"/>
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+
+  <!-- Jackal controllers, EKF (odom -> base_link TF) and twist_mux (/cmd_vel has the lowest priority) -->
+  <rosparam command="load" file="$(find jackal_control)/config/control.yaml"/>
+  <node name="base_controller_spawner" pkg="controller_manager" type="spawner"
+        args="jackal_joint_publisher jackal_velocity_controller"/>
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization">
+    <rosparam command="load" file="$(find jackal_control)/config/robot_localization.yaml"/>
+  </node>
+  <node pkg="twist_mux" type="twist_mux" name="twist_mux">
+    <rosparam command="load" file="$(find jackal_control)/config/twist_mux.yaml"/>
+    <remap from="cmd_vel_out" to="jackal_velocity_controller/cmd_vel"/>
+  </node>
+
+  <!-- the route is also read by canonnav_ros/canonnav.launch (when its waypoint_file is not given) -->
+  <param name="/waypoint_file" value="$(arg waypoint_file)"/>
+
+  <node pkg="canonnav_hospital_example" type="spawn_robot.py" name="spawn_robot" output="screen">
+    <param name="waypoint_file" value="$(arg waypoint_file)"/>
+    <param if="$(eval spawn_x != '')" name="x" value="$(arg spawn_x)"/>
+    <param if="$(eval spawn_y != '')" name="y" value="$(arg spawn_y)"/>
+    <param if="$(eval spawn_yaw != '')" name="yaw" value="$(arg spawn_yaw)"/>
+  </node>
+
+  <node if="$(eval float(arg('sim_speed')) != 1)" pkg="canonnav_hospital_example" type="set_sim_speed.py"
+        name="set_sim_speed" output="screen">
+    <param name="speed" value="$(arg sim_speed)"/>
+  </node>
+
+  <node if="$(arg recovery)" pkg="canonnav_hospital_example" type="recovery_node.py" name="recovery" output="screen">
+    <remap from="odom" to="/ground_truth/odom"/>
+  </node>
+</launch>

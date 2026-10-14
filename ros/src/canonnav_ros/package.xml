@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>canonnav_ros</name>
+  <version>0.1.0</version>
+  <description>ROS1 nodes for CanonNav: SoR/path inference with waypoint goals, and a path tracker.</description>
+  <maintainer email="sgr01086@snu.ac.kr">Dong-Wook Kim</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>canonnav_msgs</depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+</package>

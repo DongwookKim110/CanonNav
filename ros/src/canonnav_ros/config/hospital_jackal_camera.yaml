@@ -1,0 +1,9 @@
+# Camera of canonnav_hospital_example/urdf/jackal_canonnav.urdf.xacro. schema: canonnav/config.py::CameraCfg
+# K from Gazebo's pinhole model: fx = (W/2) / tan(hfov/2), c = (size + 1) / 2
+K:
+  - [336.0, 0.0, 336.5]
+  - [0.0, 336.0, 188.5]
+  - [0.0, 0.0, 1.0]
+size: [376, 672]   # H, W
+height: 0.7265     # above the ground [m]: base_link 0.0635 + camera mount 0.65 + sensor 0.013
+pitch: 0.0         # [deg], + looks up, - looks down

@@ -1,0 +1,8 @@
+# ZED camera (672x376) of assets/sample_hallway.jpg. schema: canonnav/config.py::CameraCfg
+K:
+  - [491.5841369628906, 0.0, 332.99658203125]
+  - [0.0, 491.5841369628906, 195.59390258789062]
+  - [0.0, 0.0, 1.0]
+size: [376, 672]   # H, W
+height: 0.54       # [m]
+pitch: 0.0         # [deg], + looks up, - looks down

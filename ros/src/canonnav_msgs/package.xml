@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>canonnav_msgs</name>
+  <version>0.1.0</version>
+  <description>Messages for CanonNav: best path with per-waypoint traversability.</description>
+  <maintainer email="sgr01086@snu.ac.kr">Dong-Wook Kim</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>message_generation</build_depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>message_runtime</exec_depend>
+</package>
